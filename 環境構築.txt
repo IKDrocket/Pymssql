@@ -7,6 +7,10 @@ https://www.server-world.info/query?os=CentOS_7&p=japanese
 # ロケール
 https://qiita.com/0ta2/items/acf935c24073046de4d6
 
+#タイムゾーン
+https://yusukelog.com/server/linux/vagrant-centos-set-timezone/
+timedatectl set-timezone Asia/Tokyo
+
 # sshで入れるようにする
 https://qiita.com/y_arakawa/items/7bb292c999873032e6a4
 
