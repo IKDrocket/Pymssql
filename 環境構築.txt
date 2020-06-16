@@ -1,0 +1,34 @@
+# vagrantインストール → centOS7導入
+https://qiita.com/esparrago_b/items/a919f985ca01de253820
+
+# 日本語環境導入
+https://www.server-world.info/query?os=CentOS_7&p=japanese
+
+# ロケール
+https://qiita.com/0ta2/items/acf935c24073046de4d6
+
+# sshで入れるようにする
+https://qiita.com/y_arakawa/items/7bb292c999873032e6a4
+
+# SQL Server 2017導入
+https://www.server-world.info/query?os=CentOS_7&p=mssql2017&f=1
+
+## DB 作成
+1> CREATE DATABASE PersolInfo;
+2> GO
+
+## 日本語有効化
+https://zero0nine.com/archives/2906
+1> ALTER DATABASE PersonalInfo COLLATE Japanese_XJIS_100_CI_AI_WS
+2> GO
+
+# python環境導入（pyenv → pipenvまで）
+pyenv導入
+https://qiita.com/ksugawara61/items/ba9a51ebfdaf8d1a1b48
+
+pip install pipenv
+
+yum install vim
+yum install install unixodbc-dev
+yum install gcc-c++
+yum install python-devel
