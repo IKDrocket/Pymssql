@@ -183,7 +183,7 @@ def select_tracks(conn, table_name, column_list, inner_list=[]):
     query = 'SELECT {} FROM {} {}'.format(columns, table_name, inner_joins)
     #print(query)
     rows = cur.execute(query).fetchall()
-    print(rows)
+    outputformat(column_list, rows)
     conn.commit()
 
 
@@ -199,4 +199,13 @@ def select_tables(conn, table_name):
     inner_join = 'INNER JOIN Meta ON BaseInfo.sample_id = Meta.sample_id'
     inner_joins.append(inner_join)
     select_tracks(conn, table_name, target_column, inner_joins)
+
+def outputformat(column_list, results):
+    column_list[0] = 'sample_id'
+    header = '\t'.join(column_list)
+    
+    print(header)
+    for row in results:
+        result = '\t'.join(map(str, row))
+        print(result)
     
