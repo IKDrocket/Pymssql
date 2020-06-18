@@ -32,8 +32,14 @@ def argparser():
         'input csv'           : 登録用csvファイル
     
     オプション:
+        [初期化]
         '-i', '--init' : データベース初期化
+        [登録]
+        '-r', '--regist' : 指定csvファイルをデータベース登録
+        [検索]
         '-s','--search': 登録済みテーブルを検索
+            [詳細設定]
+            '-a','--address': 検索する都道府県をローマ字で指定
         
     Args:
     returns:
@@ -44,6 +50,9 @@ def argparser():
     parser.add_argument("-r","--regist",type=str,
                         help='Regist from input csv')
 
+    parser.add_argument("-a","--address",type=str,
+                        help='Select address(Rome)')
+
     parser.add_argument('-i', '--init',
                         default=False,
                         action='store_true',
@@ -52,6 +61,10 @@ def argparser():
                         default=False,
                         action='store_true',
                         help='search from regist table')
+    parser.add_argument('-q','--query',
+                        default=False,
+                        action='store_true',
+                        help='show sql query')
 
 
     
@@ -71,11 +84,11 @@ def main():
             initialize(conn, database)
         else:
             logger.error('Password is incorrect')
-    if args.regist:
+    elif args.regist:
         input_csv = args.regist
         regist(conn, input_csv)
-    if args.search:
-        select_tables(conn, 'BaseInfo')
+    elif args.search:
+        select_tables(conn, 'BaseInfo', args.query, args.address)
     logger.info('finished')
     conn.close()
 

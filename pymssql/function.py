@@ -1,4 +1,4 @@
-
+from pymssql.mylogger import logger
 
 ########################
 #    DELETE & CREATE   #
@@ -46,7 +46,6 @@ def create_base_info_table(conn):
     ig = 'INT'
     vc1 = 'NVARCHAR(1)'
     vc2 = 'NVARCHAR(2)'
-    vc3 = 'NVARCHAR(3)'
     vc30 = 'NVARCHAR(30)'
     pk = ' IDENTITY'
     date = 'date'
@@ -66,7 +65,6 @@ def create_contact_info_table(conn):
     table_name = "ContactInfo"
     ig = 'INT'
     big = 'bigint'
-    vc11 = 'NVARCHAR(11)'
     vc = 'NVARCHAR(64)'
     pk = ' IDENTITY'
     name_type_dict = {'sample_id': ig + pk,
@@ -81,7 +79,6 @@ def create_address_info_table(conn):
     ig = 'INT'
     vc = 'NVARCHAR(100)'
     pk = ' IDENTITY'
-    null = ' NOT NULL'
     name_type_dict = {'sample_id': ig + pk,
                       'zip': ig,
                       'address': vc,
@@ -114,6 +111,7 @@ def delete_tables(conn, table_name_list):
 
 
 def regist(conn, inputfile):
+    logger.info('Mode: regist')
     with open(inputfile, 'r')as rf:
         # 1行目のheaderはいらない
         line = rf.readline()
@@ -176,36 +174,47 @@ def str_editor(strings):
 ###############
 
 
-def select_tracks(conn, table_name, column_list, inner_list=[]):
+def select_tracks(conn, table_name, flag, column_list, inner_list, condition_list = []):
     cur = conn.cursor()
     columns = ','.join(column_list)
     inner_joins = ' '.join(inner_list) if inner_list else ''
-    query = 'SELECT {} FROM {} {}'.format(columns, table_name, inner_joins)
-    #print(query)
+    conditions = ' '.join(condition_list) if inner_list else ''
+    query = 'SELECT {} FROM {} {} {}'.format(columns, table_name, inner_joins, conditions)
+    if flag:
+        logger.info(query)
     rows = cur.execute(query).fetchall()
     outputformat(column_list, rows)
     conn.commit()
 
 
-def select_tables(conn, table_name):
+def select_tables(conn, table_name, query_flag , address):
+    logger.info('Mode: search')
     inner_joins = []
     target_column = ['BaseInfo.sample_id', 'name', 'sex', 'birthday', 'age', 'blood_type',
                     'phone_number', 'cell_phone_number', 'mail_address', 'zip', 'address',
-                    'update_day', 'delete_flag']
+                    'update_day']
     inner_join = 'INNER JOIN ContactInfo ON BaseInfo.sample_id = ContactInfo.sample_id'
     inner_joins.append(inner_join)
     inner_join = 'INNER JOIN AdressInfo ON BaseInfo.sample_id = AdressInfo.sample_id'
     inner_joins.append(inner_join)
     inner_join = 'INNER JOIN Meta ON BaseInfo.sample_id = Meta.sample_id'
     inner_joins.append(inner_join)
-    select_tracks(conn, table_name, target_column, inner_joins)
+
+    condition_list = []
+    if address:
+        condition = "WHERE address_rome LIKE '{}%'".format(address)
+        condition_list.append(condition)
+    select_tracks(conn, table_name, query_flag, target_column, inner_joins, condition_list)
+
 
 def outputformat(column_list, results):
     column_list[0] = 'sample_id'
     header = '\t'.join(column_list)
-    
-    print(header)
+    print('\n' + header)
+    num = 0
     for row in results:
         result = '\t'.join(map(str, row))
         print(result)
+        num += 1
+    print('\n({} rows affected)'.format(str(num)))
     
