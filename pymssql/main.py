@@ -84,6 +84,7 @@ def main():
             initialize(conn, database)
         else:
             logger.error('Password is incorrect')
+            exit()
     elif args.regist:
         input_csv = args.regist
         regist(conn, input_csv)
