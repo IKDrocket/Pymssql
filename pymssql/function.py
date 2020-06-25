@@ -1,4 +1,5 @@
 from pymssql.mylogger import logger
+from tqdm.auto import tqdm
 
 ########################
 #    DELETE & CREATE   #
@@ -112,17 +113,20 @@ def delete_tables(conn, table_name_list):
 
 def regist(conn, inputfile):
     logger.info('Mode: regist')
+    rowNum = sum([1 for _ in open(inputfile)]) -1
     with open(inputfile, 'r')as rf:
         # 1行目のheaderはいらない
         line = rf.readline()
         line = rf.readline()
-        while line:
-            persodic = set_db_dict(line)
-            insert(conn, 'Meta', ['update_day','delete_flag'], ['GETDATE()', 0])
-            insert(conn, 'BaseInfo', persodic['base'].keys(), persodic['base'].values())
-            insert(conn, 'ContactInfo', persodic['contact'].keys(), persodic['contact'].values())
-            insert(conn, 'AdressInfo', persodic['adress'].keys(), persodic['adress'].values())
-            line = rf.readline()
+        with tqdm(total=rowNum,dynamic_ncols=True) as pbar:
+            while line:
+                persodic = set_db_dict(line)
+                insert(conn, 'Meta', ['update_day','delete_flag'], ['GETDATE()', 0])
+                insert(conn, 'BaseInfo', persodic['base'].keys(), persodic['base'].values())
+                insert(conn, 'ContactInfo', persodic['contact'].keys(), persodic['contact'].values())
+                insert(conn, 'AdressInfo', persodic['adress'].keys(), persodic['adress'].values())
+                line = rf.readline()
+                pbar.update(1)
 
 
 def set_db_dict(line):
@@ -174,20 +178,20 @@ def str_editor(strings):
 ###############
 
 
-def select_tracks(conn, table_name, flag, column_list, inner_list, condition_list = []):
+def select_tracks(conn, table_name, args, column_list, inner_list, condition_list = []):
     cur = conn.cursor()
     columns = ','.join(column_list)
     inner_joins = ' '.join(inner_list) if inner_list else ''
     conditions = ' '.join(condition_list) if inner_list else ''
     query = 'SELECT {} FROM {} {} {}'.format(columns, table_name, inner_joins, conditions)
-    if flag:
+    if args.query:
         logger.info(query)
     rows = cur.execute(query).fetchall()
-    outputformat(column_list, rows)
+    outputformat(column_list, rows, args)
     conn.commit()
 
 
-def select_tables(conn, table_name, query_flag , address):
+def select_tables(conn, table_name, args):
     logger.info('Mode: search')
     inner_joins = []
     target_column = ['BaseInfo.sample_id', 'name', 'sex', 'birthday', 'age', 'blood_type',
@@ -201,20 +205,31 @@ def select_tables(conn, table_name, query_flag , address):
     inner_joins.append(inner_join)
 
     condition_list = []
-    if address:
+    if args.address:
         condition = "WHERE address_rome LIKE '{}%'".format(address)
         condition_list.append(condition)
-    select_tracks(conn, table_name, query_flag, target_column, inner_joins, condition_list)
+    select_tracks(conn, table_name, args, target_column, inner_joins, condition_list)
 
 
-def outputformat(column_list, results):
+def outputformat(column_list, results, args):
     column_list[0] = 'sample_id'
-    header = '\t'.join(column_list)
-    print('\n' + header)
-    num = 0
-    for row in results:
-        result = '\t'.join(map(str, row))
-        print(result)
-        num += 1
-    print('\n({} rows affected)'.format(str(num)))
+    if args.output:
+        header = ','.join(column_list)
+        with open(args.output, 'w')as wf:
+            wf.write(header + '\n')
+            num = 0
+            for row in results:
+                result = ','.join(map(str, row))
+                wf.write(result + '\n')
+                num += 1
+            wf.write('({} rows affected)'.format(str(num)))
+    else:
+        header = '\t'.join(column_list)
+        print('\n' + header)
+        num = 0
+        for row in results:
+            result = '\t'.join(map(str, row))
+            print(result)
+            num += 1
+        print('\n({} rows affected)'.format(str(num)))
     

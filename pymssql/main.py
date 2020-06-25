@@ -40,6 +40,7 @@ def argparser():
         '-s','--search': 登録済みテーブルを検索
             [詳細設定]
             '-a','--address': 検索する都道府県をローマ字で指定
+            '-o','--output': csvファイルを出力
         
     Args:
     returns:
@@ -52,6 +53,9 @@ def argparser():
 
     parser.add_argument("-a","--address",type=str,
                         help='Select address(Rome)')
+
+    parser.add_argument("-o","--output",type=str,
+                        help='output csv')
 
     parser.add_argument('-i', '--init',
                         default=False,
@@ -89,7 +93,7 @@ def main():
         input_csv = args.regist
         regist(conn, input_csv)
     elif args.search:
-        select_tables(conn, 'BaseInfo', args.query, args.address)
+        select_tables(conn, 'BaseInfo', args)
     logger.info('finished')
     conn.close()
 
