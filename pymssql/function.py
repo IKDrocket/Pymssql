@@ -206,7 +206,7 @@ def select_tables(conn, table_name, args):
 
     condition_list = []
     if args.address:
-        condition = "WHERE address_rome LIKE '{}%'".format(address)
+        condition = "WHERE address_rome LIKE '{}%'".format(args.address)
         condition_list.append(condition)
     select_tracks(conn, table_name, args, target_column, inner_joins, condition_list)
 
