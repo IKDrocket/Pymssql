@@ -94,7 +94,7 @@ def main():
         regist(conn, input_csv)
     elif args.search:
         select_tables(conn, 'BaseInfo', args)
-    logger.info('finished')
+    logger.info('finished !!')
     conn.close()
 
 

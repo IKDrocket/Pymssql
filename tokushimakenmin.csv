@@ -1,0 +1,3 @@
+sample_id,name,sex,birthday,age,blood_type,phone_number,cell_phone_number,mail_address,zip,address,update_day
+4,松村誠司,男,1944-01-25,76,O,886015499,0,seijimatsumura@oqzaamjx.yen,7711705,徳島県阿波市阿波町梅川内4-14-6,2020-06-26
+(1 rows affected)
